@@ -1,0 +1,29 @@
+{
+  "model_name": "prosodi_down_ser_cnn1d_bilstm",
+  "labels": [
+    "netral",
+    "senang",
+    "sedih",
+    "marah"
+  ],
+  "sample_rate": 16000,
+  "segment_duration_sec": 10.0,
+  "segment_samples": 160000,
+  "n_mfcc": 40,
+  "n_fft": 2048,
+  "hop_length": 512,
+  "n_frames": 313,
+  "n_features": 81,
+  "feature_order": [
+    "mfcc(40)",
+    "delta_mfcc(40)",
+    "rms_energy(1)"
+  ],
+  "input_shape": [
+    313,
+    81
+  ],
+  "normalization": "z_score_per_feature (mean/std dari scaler.json, fit di train set)",
+  "trim_silence_top_db": 25,
+  "recommended_tflite_variant": "prosodi_down_ser_fp16.tflite"
+}
