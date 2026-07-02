@@ -174,4 +174,18 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     fun updateSelectedDate(date: LocalDate) { selectedDate.value = date }
     fun updateSelectedMonth(month: Int) { selectedMonth.value = month }
     fun updateSelectedYear(year: Int) { selectedYear.value = year }
+
+    fun generateCsvContent(): String {
+        val logs = sessionLogs.value
+        val sb = StringBuilder()
+        // Header
+        sb.append("Session ID,Tanggal,Durasi,Emosi Terdeteksi,Total Deteksi\n")
+
+        logs.forEach { log ->
+            val emotionsStr = log.emotions.joinToString(" | ") { it.label }
+            sb.append("${log.sessionId},${log.tanggal},${log.durasi},\"$emotionsStr\",${log.totalDeteksi}\n")
+        }
+
+        return sb.toString()
+    }
 }

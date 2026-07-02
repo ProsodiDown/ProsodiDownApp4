@@ -2,6 +2,8 @@ package com.example.prosodidownapp4.ui.history
 
 import android.app.Application
 import android.app.DatePickerDialog
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -73,6 +75,7 @@ import com.example.prosodidownapp4.ui.theme.ProsodiSecondary
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.io.OutputStreamWriter
 
 // =============================================================================
 // Data classes
@@ -127,6 +130,25 @@ fun HistoryScreen(
     val totalDeteksi = emotionStats.sumOf { it.count }
     val totalSesi    = sessionLogs.size
 
+    val context = LocalContext.current
+    val downloadLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv"),
+        onResult = { uri ->
+            uri?.let {
+                val csvContent = viewModel.generateCsvContent()
+                try {
+                    context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                        OutputStreamWriter(outputStream).use { writer ->
+                            writer.write(csvContent)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -149,7 +171,10 @@ fun HistoryScreen(
                     selectedYear   = selectedYear,
                     onYearChange   = { viewModel.updateSelectedYear(it) },
                     availableYears = availableYears,
-                    onDownload     = { },
+                    onDownload     = {
+                        val fileName = "Riwayat_Emosi_${System.currentTimeMillis()}.csv"
+                        downloadLauncher.launch(fileName)
+                    },
                 )
             }
             item { Spacer(modifier = Modifier.height(16.dp)) }
