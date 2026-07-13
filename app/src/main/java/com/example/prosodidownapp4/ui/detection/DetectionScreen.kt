@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,11 +62,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.prosodidownapp4.ui.components.BottomNavBar
 import com.example.prosodidownapp4.ui.components.BottomNavItem
+import com.example.prosodidownapp4.ui.components.AppTopHeader
 import com.example.prosodidownapp4.ui.home.HomeNavMenu
 import com.example.prosodidownapp4.ui.theme.ProsodiDownApp4Theme
 import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
+
 
 @Composable
 fun DetectionScreen(
@@ -76,8 +80,10 @@ fun DetectionScreen(
     isLoggedIn: Boolean = true,
     onNavigateToHome: () -> Unit = {},
     onNavigateToRiwayat: () -> Unit = {},
+    onNavigateBack: () -> Unit = {},
     onLogout: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -99,25 +105,31 @@ fun DetectionScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF5F5F5))) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 88.dp),
         ) {
-            Spacer(modifier = Modifier.height(60.dp))
-
+            Spacer(modifier = Modifier.height(24.dp))
+            AppTopHeader(
+                onBackClick = onNavigateBack,
+                onMenuClick = onMenuClick
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "Deteksi Emosi",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A1A2E),
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(start = 12.dp)
             )
             Text(
                 text = "Rekam suara anak untuk mendeteksi kondisi emosi",
                 fontSize = 12.sp,
-                color = ProsodiPrimary,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 12.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -169,7 +181,7 @@ fun DetectionScreen(
                 BottomNavItem(HomeNavMenu.RIWAYAT, Icons.Filled.History, "Riwayat"),
                 BottomNavItem(
                     id = HomeNavMenu.AUTH,
-                    icon = Icons.AutoMirrored.Filled.Logout,
+                    icon = if (isLoggedIn) Icons.AutoMirrored.Filled.Logout else Icons.AutoMirrored.Filled.Login,
                     contentDescription = if (isLoggedIn) "Keluar" else "Masuk",
                 ),
             ),
@@ -223,7 +235,7 @@ private fun WaveformCard(state: DetectionUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, shape = RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
             .padding(16.dp),
     ) {
         Row(
@@ -235,7 +247,7 @@ private fun WaveformCard(state: DetectionUiState) {
                 text = "Gelombang Suara",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF333333),
+                color = MaterialTheme.colorScheme.onSurface,
             )
             when (state.status) {
                 DetectionStatus.RECORDING -> StatusTag(text = "LIVE", color = Color(0xFF2E7D32))
@@ -309,7 +321,7 @@ private fun StatRow(state: DetectionUiState) {
                 text = formatDuration(state.elapsedSeconds),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = ProsodiPrimary,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
         StatCard(modifier = Modifier.weight(1f).fillMaxHeight(), label = "Emosi Saat Ini") {
@@ -318,7 +330,7 @@ private fun StatRow(state: DetectionUiState) {
                 text = state.currentEmotion.displayName,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = ProsodiPrimary,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }
@@ -332,11 +344,11 @@ private fun StatCard(
 ) {
     Column(
         modifier = modifier
-            .background(Color.White, shape = RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = label, fontSize = 12.sp, color = Color(0xFF888888))
+        Text(text = label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         Spacer(modifier = Modifier.height(6.dp))
         content()
     }
@@ -353,17 +365,17 @@ private fun AnalysisCountdownCard(secondsUntilNext: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, shape = RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = "Analisis berikutnya dalam", fontSize = 12.sp, color = Color(0xFF888888))
+        Text(text = "Analisis berikutnya dalam", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         Text(
             text = "${secondsUntilNext}s",
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = ProsodiPrimary,
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -479,14 +491,14 @@ private fun LogDeteksiSection(entries: List<DetectionLogEntry>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, shape = RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
             .padding(16.dp),
     ) {
         Text(
             text = "Log Deteksi",
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = ProsodiPrimary,
+            color = MaterialTheme.colorScheme.primary,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -494,7 +506,7 @@ private fun LogDeteksiSection(entries: List<DetectionLogEntry>) {
             Text(
                 text = "Menunggu siklus analisis pertama (10 detik).",
                 fontSize = 12.sp,
-                color = Color(0xFF888888),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
         } else {
             LazyColumn(modifier = Modifier.height((entries.size.coerceAtMost(5) * 40).dp)) {

@@ -27,6 +27,15 @@ val ProsodiSplashNavy = Color(0xFF07111F)
 val ProsodiOnPrimary = Color(0xFFFFFFFF)
 val ProsodiOnBackground = Color(0xFF1A1A1A)
 
+// Dark Mode Colors — Soft Version
+val ProsodiPrimaryDark = Color(0xFF76A9D8)
+val ProsodiSecondaryDark = Color(0xFF8AB4F8)
+val ProsodiAccentDark = Color(0xFFF0907A)
+val ProsodiBackgroundDark = Color(0xFF0E141D)
+val ProsodiOnBackgroundDark = Color(0xFFE2E8F0)
+val ProsodiSurfaceDark = Color(0xFF1B242E)
+val ProsodiOnSurfaceDark = Color(0xFFF1F5F9)
+
 val EmotionSenang = Color(0xFF4A90E2)
 val EmotionSedih  = Color(0xFF123458)
 val EmotionMarah  = Color(0xFFFF7A59)

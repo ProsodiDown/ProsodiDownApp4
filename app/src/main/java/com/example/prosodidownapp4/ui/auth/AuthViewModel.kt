@@ -27,8 +27,11 @@ sealed class AuthState {
     /** Sedang proses login / register */
     object Loading : AuthState()
 
-    /** Login / register berhasil */
+    /** Login berhasil */
     data class Success(val user: User) : AuthState()
+
+    /** Pendaftaran berhasil */
+    data class RegistrationSuccess(val message: String) : AuthState()
 
     /** Ada error — message ditampilkan di UI */
     data class Error(val message: String) : AuthState()
@@ -43,6 +46,19 @@ class AuthViewModel : ViewModel() {
     private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
+    // ── Database Simulasi (In-Memory) ───────────────────────────────────────
+    // Dalam aplikasi asli, data ini akan diambil dari Database (Room) atau API
+    private val registeredUsers = mutableListOf(
+        User("admin", "admin"), // username, role
+        User("user123", "user")
+    )
+    
+    // Password disimpan terpisah untuk simulasi keamanan sederhana
+    private val userPasswords = mutableMapOf(
+        "admin" to "admin123",
+        "user123" to "user123"
+    )
+
     // ── Login ──────────────────────────────────────────────────────────────
     fun login(username: String, password: String) {
         if (username.isBlank() || password.isBlank()) {
@@ -52,25 +68,16 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             _state.value = AuthState.Loading
-
-            // TODO: ganti dengan API call ke backend kamu
-            // Contoh sementara: simulasi delay + validasi dummy
             kotlinx.coroutines.delay(1000L)
 
-            // ── Ganti blok ini dengan hasil response API ──────────────────
-            if (username == "admin" && password == "admin123") {
-                _state.value = AuthState.Success(
-                    user = User(username = username, role = "admin")
-                )
-            } else if (password.length >= 4) {
-                // Sementara: login berhasil jika password >= 4 karakter
-                _state.value = AuthState.Success(
-                    user = User(username = username, role = "user")
-                )
+            val user = registeredUsers.find { it.username == username }
+            val storedPassword = userPasswords[username]
+
+            if (user != null && storedPassword == password) {
+                _state.value = AuthState.Success(user)
             } else {
                 _state.value = AuthState.Error("Username atau password salah")
             }
-            // ─────────────────────────────────────────────────────────────
         }
     }
 
@@ -88,16 +95,19 @@ class AuthViewModel : ViewModel() {
                 _state.value = AuthState.Error("Email tidak valid")
             username.isBlank() ->
                 _state.value = AuthState.Error("Username tidak boleh kosong")
+            registeredUsers.any { it.username == username } ->
+                _state.value = AuthState.Error("Username sudah terdaftar")
             password.length < 6 ->
                 _state.value = AuthState.Error("Password minimal 6 karakter")
             else -> viewModelScope.launch {
                 _state.value = AuthState.Loading
-
-                // TODO: ganti dengan API call register ke backend kamu
                 kotlinx.coroutines.delay(1000L)
 
-                // Sementara selalu berhasil
-                _state.value = AuthState.Error("Pendaftaran berhasil! Silakan masuk.")
+                // Simpan ke database simulasi
+                registeredUsers.add(User(username, "user"))
+                userPasswords[username] = password
+
+                _state.value = AuthState.RegistrationSuccess("Pendaftaran berhasil! Silakan masuk.")
             }
         }
     }

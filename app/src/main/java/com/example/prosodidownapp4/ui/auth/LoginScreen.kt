@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -23,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -53,7 +55,7 @@ import com.example.prosodidownapp4.ui.theme.ProsodiSecondary
 
 /**
  * AuthTab dijadikan PUBLIC (sebelumnya private) supaya bisa dipakai sebagai
- * tipe parameter [LoginScreen.initialTab] dari composable lain (HomeScreen,
+ * tipe parameter [LoginScreen. initialTab] dari composable lain (HomeScreen,
  * NavGraph) -- diperlukan untuk fitur "buka langsung tab Daftar" via tombol
  * "Gabung Sekarang"/"Mulai Sekarang" di HomeScreen.
  */
@@ -67,6 +69,7 @@ fun LoginScreen(
      * (perilaku asli) -- kirim AuthTab.DAFTAR dari pemanggil yang ingin
      * langsung menampilkan form pendaftaran (lihat HomeScreen "Gabung Sekarang"). */
     initialTab: AuthTab = AuthTab.MASUK,
+    onBackClick: () -> Unit = {},
 ) {
     val authState by viewModel.state.collectAsState()
 
@@ -77,7 +80,7 @@ fun LoginScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -86,67 +89,82 @@ fun LoginScreen(
                 )
             ),
     ) {
-        Column(
+        IconButton(
+            onClick = onBackClick,
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+                .padding(top = 40.dp, start = 8.dp)
+                .align(Alignment.TopStart)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo1),
-                contentDescription = "Logo Prosodi Down",
-                modifier = Modifier.size(90.dp),
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Prosodi Down",
-                color = Color.White,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Deteksi Emosi Anak Down Syndrome",
-                color = Color.White.copy(alpha = 0.85f),
-                fontSize = 12.sp,
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Kembali",
+                tint = Color.White
             )
         }
 
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 32.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    shape = RoundedCornerShape(28.dp),
-                    ambientColor = Color.Black.copy(alpha = 0.15f),
-                    spotColor = Color.Black.copy(alpha = 0.15f),
+        Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo1),
+                    contentDescription = "Logo Prosodi Down",
+                    modifier = Modifier.size(90.dp),
                 )
-                .background(
-                    color = Color(0xFFFAFAFA),
-                    shape = RoundedCornerShape(28.dp),
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Prosodi Down",
+                    color = Color.White,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
                 )
-                .padding(horizontal = 24.dp, vertical = 28.dp),
-        ) {
-            // selectedTab diinisialisasi dari parameter initialTab (sebelumnya
-            // selalu hardcode AuthTab.MASUK) -- ini perubahan utama untuk
-            // mendukung "buka langsung tab Daftar".
-            var selectedTab by remember { mutableStateOf(initialTab) }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Deteksi Emosi Anak Down Syndrome",
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = 12.sp,
+                )
+            }
 
-            AuthTabSelector(
-                selectedTab = selectedTab,
-                onTabSelected = {
-                    selectedTab = it
-                    viewModel.resetState()
-                },
-            )
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 32.dp)
+                    .shadow(
+                        elevation = 16.dp,
+                        shape = RoundedCornerShape(28.dp),
+                        ambientColor = Color.Black.copy(alpha = 0.15f),
+                        spotColor = Color.Black.copy(alpha = 0.15f),
+                    )
+                    .background(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(28.dp),
+                    )
+                    .padding(horizontal = 24.dp, vertical = 28.dp),
+            ) {
+                // selectedTab diinisialisasi dari parameter initialTab (sebelumnya
+                // selalu hardcode AuthTab.MASUK) -- ini perubahan utama untuk
+                // mendukung "buka langsung tab Daftar".
+                var selectedTab by remember { mutableStateOf(initialTab) }
 
-            Spacer(modifier = Modifier.height(28.dp))
+                AuthTabSelector(
+                    selectedTab = selectedTab,
+                    onTabSelected = {
+                        selectedTab = it
+                        viewModel.resetState()
+                    },
+                )
 
-            when (selectedTab) {
-                AuthTab.MASUK -> MasukForm(viewModel = viewModel)
-                AuthTab.DAFTAR -> DaftarForm(viewModel = viewModel)
+                Spacer(modifier = Modifier.height(28.dp))
+
+                when (selectedTab) {
+                    AuthTab.MASUK -> MasukForm(viewModel = viewModel)
+                    AuthTab.DAFTAR -> DaftarForm(viewModel = viewModel)
+                }
             }
         }
     }
@@ -227,6 +245,17 @@ private fun MasukForm(viewModel: AuthViewModel) {
         )
     }
 
+    if (authState is AuthState.RegistrationSuccess) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = (authState as AuthState.RegistrationSuccess).message,
+            color = Color(0xFF388E3C),
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+
     Spacer(modifier = Modifier.height(16.dp))
 
     Row(
@@ -265,11 +294,6 @@ private fun DaftarForm(viewModel: AuthViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-
-    val pesanWarna = if (
-        authState is AuthState.Error &&
-        (authState as AuthState.Error).message.contains("berhasil", ignoreCase = true)
-    ) Color(0xFF388E3C) else Color(0xFFD32F2F)
 
     AuthLabel(text = "Nama Lengkap")
     Spacer(modifier = Modifier.height(6.dp))
@@ -349,7 +373,18 @@ private fun DaftarForm(viewModel: AuthViewModel) {
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = (authState as AuthState.Error).message,
-            color = pesanWarna,
+            color = Color(0xFFD32F2F),
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+
+    if (authState is AuthState.RegistrationSuccess) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = (authState as AuthState.RegistrationSuccess).message,
+            color = Color(0xFF388E3C),
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
@@ -367,7 +402,7 @@ private fun DaftarForm(viewModel: AuthViewModel) {
 private fun AuthLabel(text: String, highlight: Boolean = false) {
     Text(
         text = text,
-        color = if (highlight) ProsodiPrimary else Color(0xFF333333),
+        color = if (highlight) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
         fontSize = 13.sp,
         fontWeight = FontWeight.Medium,
     )
@@ -395,13 +430,13 @@ private fun AuthTextField(
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = ProsodiPrimary,
-            unfocusedBorderColor = Color(0xFFE0E0E0),
-            disabledBorderColor = Color(0xFFE0E0E0),
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color(0xFFF5F5F5),
-            cursorColor = ProsodiPrimary,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+            disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f),
+            cursorColor = MaterialTheme.colorScheme.primary,
         ),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (isPassword && !passwordVisible)
@@ -430,7 +465,7 @@ private fun AuthTabSelector(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFEBEBEB))
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
             .padding(4.dp),
     ) {
         AuthTabItem(
@@ -463,14 +498,14 @@ private fun AuthTabItem(
                 else Modifier
             )
             .clip(RoundedCornerShape(12.dp))
-            .background(if (isSelected) Color(0xFFFAFAFA) else Color.Transparent)
+            .background(if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent)
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            color = if (isSelected) ProsodiPrimary else Color(0xFF9E9E9E),
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             fontSize = 14.sp,
         )

@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import com.example.prosodidownapp4.R
 import com.example.prosodidownapp4.ui.theme.ProsodiDownApp4Theme
 import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
-import com.example.prosodidownapp4.ui.theme.ProsodiSecondary
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -53,7 +51,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
     val animatedAlpha by animateFloatAsState(
         targetValue = alphaTarget,
         animationSpec = tween(
-            durationMillis = if (alphaTarget == 1f) 400 else 200, // ← dipercepat
+            durationMillis = if (alphaTarget == 1f) 400 else 200,
             easing = FastOutSlowInEasing,
         ),
         label = "splashAlpha",
@@ -61,9 +59,9 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
     LaunchedEffect(Unit) {
         alphaTarget = 1f
-        delay(1200)    // ← dipercepat dari 2400ms
+        delay(1200)
         alphaTarget = 0f
-        delay(200)     // ← dipercepat dari 400ms
+        delay(200)
         onSplashFinished()
     }
 
@@ -73,52 +71,17 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             .background(Color.White)
             .graphicsLayer { alpha = animatedAlpha },
     ) {
-        // ── Decorative circles (warna dari palet) ────────────────────────
-        Box(
-            modifier = Modifier
-                .size(280.dp)
-                .align(Alignment.TopEnd)
-                .graphicsLayer { translationX = 100f; translationY = -100f }
-                .clip(CircleShape)
-                .background(ProsodiPrimary.copy(alpha = 0.06f)),
-        )
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.BottomStart)
-                .graphicsLayer { translationX = -80f; translationY = 80f }
-                .clip(CircleShape)
-                .background(ProsodiSecondary.copy(alpha = 0.08f)),
-        )
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .align(Alignment.TopStart)
-                .graphicsLayer { translationX = -40f; translationY = 120f }
-                .clip(CircleShape)
-                .background(ProsodiPrimary.copy(alpha = 0.04f)),
-        )
-
-        // ── Konten utama ──────────────────────────────────────────────────
+        // ── Konten utama: logo, teks, titik-titik ──────────────────────
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            // Logo
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(ProsodiPrimary.copy(alpha = 0.06f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo1),
-                    contentDescription = "Logo Prosodi Down",
-                    modifier = Modifier.size(80.dp),
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.logo1),
+                contentDescription = "Logo Prosodi Down",
+                modifier = Modifier.size(96.dp),
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -137,23 +100,6 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 fontStyle = FontStyle.Italic,
                 textAlign = TextAlign.Center,
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Label PKM
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(ProsodiPrimary.copy(alpha = 0.07f))
-                    .padding(horizontal = 14.dp, vertical = 5.dp),
-            ) {
-                Text(
-                    text = "PKM-RSH · Universitas Negeri Malang",
-                    color = ProsodiPrimary.copy(alpha = 0.65f),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
 
             Spacer(modifier = Modifier.height(48.dp))
 

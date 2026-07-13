@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.History
@@ -34,8 +35,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,7 +53,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -62,16 +64,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.prosodidownapp4.ui.components.AppTopHeader
 import com.example.prosodidownapp4.ui.components.BottomNavBar
 import com.example.prosodidownapp4.ui.components.BottomNavItem
 import com.example.prosodidownapp4.ui.home.HomeNavMenu
-import com.example.prosodidownapp4.ui.theme.EmotionMarah
-import com.example.prosodidownapp4.ui.theme.EmotionNetral
-import com.example.prosodidownapp4.ui.theme.EmotionSedih
-import com.example.prosodidownapp4.ui.theme.EmotionSenang
 import com.example.prosodidownapp4.ui.theme.ProsodiDownApp4Theme
 import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
-import com.example.prosodidownapp4.ui.theme.ProsodiSecondary
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -114,9 +112,13 @@ fun HistoryScreen(
             LocalContext.current.applicationContext as Application
         )
     ),
+    isLoggedIn: Boolean = true,
     onNavigateToBeranda: () -> Unit = {},
     onNavigateToDeteksi: () -> Unit = {},
+    onNavigateBack: () -> Unit = {},
     onLogout: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
 ) {
     val filterType by viewModel.filterType.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
@@ -152,14 +154,19 @@ fun HistoryScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF4F6FA)),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 96.dp),
         ) {
-            item { HistoryHeader() }
+            item {
+                HistoryHeader(
+                    onBackClick = onNavigateBack,
+                    onMenuClick = onMenuClick
+                )
+            }
             item {
                 FilterDownloadSection(
                     filterType     = filterType,
@@ -202,14 +209,18 @@ fun HistoryScreen(
                 BottomNavItem(HomeNavMenu.BERANDA,       Icons.Filled.Home,                 "Beranda"),
                 BottomNavItem(HomeNavMenu.DETEKSI_EMOSI, Icons.Filled.Mic,                  "Deteksi Emosi"),
                 BottomNavItem(HomeNavMenu.RIWAYAT,       Icons.Filled.History,              "Riwayat"),
-                BottomNavItem(HomeNavMenu.AUTH,          Icons.AutoMirrored.Filled.Logout,  "Keluar"),
+                BottomNavItem(
+                    HomeNavMenu.AUTH,
+                    if (isLoggedIn) Icons.AutoMirrored.Filled.Logout else Icons.AutoMirrored.Filled.Login,
+                    if (isLoggedIn) "Keluar" else "Masuk",
+                ),
             ),
             activeItemId   = HomeNavMenu.RIWAYAT,
             onItemSelected = { id ->
                 when (id) {
                     HomeNavMenu.BERANDA       -> onNavigateToBeranda()
                     HomeNavMenu.DETEKSI_EMOSI -> onNavigateToDeteksi()
-                    HomeNavMenu.AUTH          -> onLogout()
+                    HomeNavMenu.AUTH          -> if (isLoggedIn) onLogout() else onNavigateToLogin()
                 }
             },
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -222,24 +233,31 @@ fun HistoryScreen(
 // =============================================================================
 
 @Composable
-private fun HistoryHeader() {
+private fun HistoryHeader(onBackClick: () -> Unit, onMenuClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF4F6FA))
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp)
-            .padding(top = 60.dp, bottom = 16.dp),
+            .padding(top = 24.dp, bottom = 16.dp),
     ) {
+        AppTopHeader(
+            onBackClick = onBackClick,
+            onMenuClick = onMenuClick
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "Riwayat",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF1A1A2E),
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(start = 12.dp)
         )
         Text(
             text = "Statistik deteksi emosi dari waktu ke waktu",
             fontSize = 12.sp,
-            color = ProsodiPrimary,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 12.dp)
         )
     }
 }
@@ -266,12 +284,12 @@ private fun FilterDownloadSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF4F6FA))
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 20.dp, vertical = 20.dp),
     ) {
         Text(
             text = "Unduh Riwayat",
-            color = Color(0xFF1A1A2E),
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -282,7 +300,7 @@ private fun FilterDownloadSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFEBEBEB))
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                 .padding(4.dp),
         ) {
             FilterType.entries.forEach { type ->
@@ -292,7 +310,7 @@ private fun FilterDownloadSection(
                         .weight(1f)
                         .clip(RoundedCornerShape(10.dp))
                         .background(
-                            if (isActive) Color.White else Color.Transparent
+                            if (isActive) MaterialTheme.colorScheme.surface else Color.Transparent
                         )
                         .clickable { onFilterChange(type) }
                         .padding(vertical = 9.dp),
@@ -306,7 +324,7 @@ private fun FilterDownloadSection(
                         },
                         fontSize = 13.sp,
                         fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (isActive) ProsodiPrimary else Color(0xFF8A94A6),
+                        color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
                 }
             }
@@ -321,8 +339,8 @@ private fun FilterDownloadSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
-                        .background(Color(0xFFFAFAFA))
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 14.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -332,7 +350,7 @@ private fun FilterDownloadSection(
                         ),
                         modifier = Modifier.weight(1f),
                         fontSize = 13.sp,
-                        color = Color(0xFF1A1A2E),
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     IconButton(
                         onClick = {
@@ -430,15 +448,15 @@ private fun DropdownSelector(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(10.dp))
-                .background(Color(0xFFFAFAFA))
+                .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable { expanded = true }
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(text = label, fontSize = 13.sp, color = Color(0xFF1A1A2E))
-            Text(text = "▾", fontSize = 12.sp, color = Color(0xFF8A94A6))
+            Text(text = label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(text = "▾", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
         DropdownMenu(
             expanded = expanded,
@@ -496,25 +514,25 @@ private fun StatCard(
         modifier = modifier
             .shadow(2.dp, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
     ) {
         Text(
             text = label,
-            color = Color(0xFF8A94A6),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = value,
-            color = ProsodiPrimary,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
         )
         Text(
             text = sub,
-            color = Color(0xFF8A94A6),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             fontSize = 10.sp,
         )
     }
@@ -532,12 +550,12 @@ private fun EmotionBarChartSection(stats: List<EmotionStat>, total: Int) {
             .padding(horizontal = 20.dp)
             .shadow(2.dp, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
     ) {
         Text(
             text = "Distribusi Emosi",
-            color = Color(0xFF1A1A2E),
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -552,7 +570,7 @@ private fun EmotionBarChartSection(stats: List<EmotionStat>, total: Int) {
                     text = stat.label,
                     modifier = Modifier.width(56.dp),
                     fontSize = 12.sp,
-                    color = Color(0xFF1A1A2E),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -561,7 +579,7 @@ private fun EmotionBarChartSection(stats: List<EmotionStat>, total: Int) {
                         .weight(1f)
                         .height(10.dp)
                         .clip(RoundedCornerShape(5.dp))
-                        .background(Color(0xFFEEF0F5)),
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
                 ) {
                     Box(
                         modifier = Modifier
@@ -597,12 +615,12 @@ private fun EmotionDonutChartSection(stats: List<EmotionStat>, total: Int) {
             .padding(horizontal = 20.dp)
             .shadow(2.dp, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
     ) {
         Text(
             text = "Proporsi Emosi",
-            color = Color(0xFF1A1A2E),
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -623,12 +641,12 @@ private fun EmotionDonutChartSection(stats: List<EmotionStat>, total: Int) {
                         text = total.toString(),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ProsodiPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                         text = "total",
                         fontSize = 10.sp,
-                        color = Color(0xFF8A94A6),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
                 }
             }
@@ -646,7 +664,7 @@ private fun EmotionDonutChartSection(stats: List<EmotionStat>, total: Int) {
                         Text(
                             text = "${stat.label}  $pct%",
                             fontSize = 12.sp,
-                            color = Color(0xFF1A1A2E),
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -690,13 +708,13 @@ private fun SessionLogHeader() {
     ) {
         Text(
             text = "Log Riwayat Sesi",
-            color = Color(0xFF1A1A2E),
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
         )
         Text(
             text = "Sesi yang dilakukan pada periode terpilih",
-            color = Color(0xFF8A94A6),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             fontSize = 12.sp,
         )
     }
@@ -710,7 +728,7 @@ private fun EmptyLogSection() {
             .padding(horizontal = 20.dp)
             .shadow(2.dp, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(vertical = 36.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -719,7 +737,7 @@ private fun EmptyLogSection() {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Anda belum melakukan\ndeteksi emosi",
-                color = Color(0xFF8A94A6),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontSize = 13.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 20.sp,
@@ -736,7 +754,7 @@ private fun SessionLogItem(log: SessionLog) {
             .padding(horizontal = 20.dp)
             .shadow(1.dp, RoundedCornerShape(14.dp))
             .clip(RoundedCornerShape(14.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -744,14 +762,14 @@ private fun SessionLogItem(log: SessionLog) {
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(ProsodiPrimary.copy(alpha = 0.08f)),
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = "#${log.sessionId}",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = ProsodiPrimary,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
         Spacer(modifier = Modifier.width(12.dp))
@@ -760,12 +778,12 @@ private fun SessionLogItem(log: SessionLog) {
                 text = log.tanggal,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1A1A2E),
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = "Durasi ${log.durasi}  ·  ${log.totalDeteksi} deteksi",
                 fontSize = 11.sp,
-                color = Color(0xFF8A94A6),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
             if (log.emotions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(6.dp))
