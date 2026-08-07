@@ -37,10 +37,10 @@ import kotlin.math.roundToInt
  */
 @Composable
 fun MarqueeTagRow(
+    modifier   : Modifier = Modifier,
     tags       : List<String>,
     durationMs : Int   = 12000,
     tagColor   : Color = ProsodiPrimary,
-    modifier   : Modifier = Modifier,
 ) {
     var singleSetWidth by remember { mutableIntStateOf(1) }
 

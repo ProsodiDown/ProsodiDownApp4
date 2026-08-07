@@ -1,11 +1,14 @@
 package com.example.prosodidownapp4.ui.navigation
 
+import android.app.Application
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -16,6 +19,7 @@ import com.example.prosodidownapp4.ui.auth.AuthState
 import com.example.prosodidownapp4.ui.auth.AuthTab
 import com.example.prosodidownapp4.ui.auth.AuthViewModel
 import com.example.prosodidownapp4.ui.auth.LoginScreen
+import com.example.prosodidownapp4.ui.auth.ProfileEditScreen
 import com.example.prosodidownapp4.ui.components.ProsodiDrawerScaffold
 import com.example.prosodidownapp4.ui.detection.DetectionScreen
 import com.example.prosodidownapp4.ui.history.HistoryScreen
@@ -38,6 +42,7 @@ object Routes {
     const val HOME         = "home"
     const val DETECTION    = "detection"
     const val HISTORY      = "history"
+    const val EDIT_PROFILE = "edit_profile"
 }
 
 @Composable
@@ -51,7 +56,11 @@ fun ProsodiDownNavGraph(
     // viewModel() dipanggil di dalam composable(Routes.LOGIN) sehingga instance-nya
     // dibuat ulang setiap kali route itu dibuka, dan status login tidak pernah
     // "diingat" oleh layar lain.
-    val authViewModel: AuthViewModel = viewModel()
+    val authViewModel: AuthViewModel = viewModel(
+        factory = ViewModelProvider.AndroidViewModelFactory.getInstance(
+            LocalContext.current.applicationContext as Application
+        )
+    )
     val authState by authViewModel.state.collectAsState()
     val isLoggedIn = authState is AuthState.Success
 
@@ -73,7 +82,7 @@ fun ProsodiDownNavGraph(
 
     /** Dipanggil dari tombol logout di BottomNavBar. */
     fun logout() {
-        authViewModel.resetState()
+        authViewModel.logout()
         navController.navigate(Routes.HOME) {
             popUpTo(Routes.HOME) { inclusive = true }
         }
@@ -99,7 +108,7 @@ fun ProsodiDownNavGraph(
             LoginScreen(
                 viewModel      = authViewModel,
                 initialTab     = AuthTab.MASUK,
-                onLoginSuccess = { _ ->
+                onLoginSuccess = {
                     val target = pendingRoute ?: Routes.HOME
                     pendingRoute = null
                     navController.navigate(target) {
@@ -118,7 +127,7 @@ fun ProsodiDownNavGraph(
             LoginScreen(
                 viewModel      = authViewModel,
                 initialTab     = AuthTab.DAFTAR,
-                onLoginSuccess = { _ ->
+                onLoginSuccess = {
                     val target = pendingRoute ?: Routes.HOME
                     pendingRoute = null
                     navController.navigate(target) {
@@ -139,7 +148,8 @@ fun ProsodiDownNavGraph(
                 mainViewModel = mainViewModel,
                 onLogin = { navController.navigate(Routes.LOGIN) },
                 onRegister = { navController.navigate(Routes.LOGIN_DAFTAR) },
-                onLogout = { logout() }
+                onLogout = { logout() },
+                onEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
             ) { openDrawer ->
                 HomeScreen(
                     isLoggedIn          = isLoggedIn,
@@ -156,15 +166,18 @@ fun ProsodiDownNavGraph(
 
         // ── Detection (butuh login) ───────────────────────────────────────
         composable(Routes.DETECTION) {
+            val user = (authState as? AuthState.Success)?.user
             ProsodiDrawerScaffold(
                 authViewModel = authViewModel,
                 mainViewModel = mainViewModel,
                 onLogin = { navController.navigate(Routes.LOGIN) },
                 onRegister = { navController.navigate(Routes.LOGIN_DAFTAR) },
-                onLogout = { logout() }
+                onLogout = { logout() },
+                onEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
             ) { openDrawer ->
                 DetectionScreen(
                     isLoggedIn          = isLoggedIn,
+                    userId              = user?.id ?: -1L,
                     onNavigateToHome    = {
                         navController.popBackStack(Routes.HOME, inclusive = false)
                     },
@@ -178,14 +191,18 @@ fun ProsodiDownNavGraph(
 
         // ── History (butuh login) ─────────────────────────────────────────
         composable(Routes.HISTORY) {
+            val user = (authState as? AuthState.Success)?.user
             ProsodiDrawerScaffold(
                 authViewModel = authViewModel,
                 mainViewModel = mainViewModel,
                 onLogin = { navController.navigate(Routes.LOGIN) },
                 onRegister = { navController.navigate(Routes.LOGIN_DAFTAR) },
-                onLogout = { logout() }
+                onLogout = { logout() },
+                onEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
             ) { openDrawer ->
                 HistoryScreen(
+                    isLoggedIn          = isLoggedIn,
+                    userId              = user?.id ?: -1L,
                     onNavigateToBeranda = {
                         navController.popBackStack(Routes.HOME, inclusive = false)
                     },
@@ -195,6 +212,18 @@ fun ProsodiDownNavGraph(
                     onMenuClick         = openDrawer
                 )
             }
+        }
+
+        // ── Edit Profile (butuh login) ────────────────────────────────────
+        composable(Routes.EDIT_PROFILE) {
+            ProfileEditScreen(
+                viewModel = authViewModel,
+                onBack = { navController.popBackStack() },
+                onSaveSuccess = {
+                    mainViewModel.triggerDrawerOnce()
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

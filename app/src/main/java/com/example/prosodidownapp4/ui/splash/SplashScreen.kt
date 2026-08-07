@@ -20,17 +20,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -44,10 +44,11 @@ import com.example.prosodidownapp4.ui.theme.ProsodiDownApp4Theme
 import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
 import kotlinx.coroutines.delay
 import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SplashScreen(onSplashFinished: () -> Unit) {
-    var alphaTarget by remember { mutableStateOf(0f) }
+    var alphaTarget by remember { mutableFloatStateOf(0f) }
     val animatedAlpha by animateFloatAsState(
         targetValue = alphaTarget,
         animationSpec = tween(
@@ -59,16 +60,16 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
     LaunchedEffect(Unit) {
         alphaTarget = 1f
-        delay(1200)
+        delay(1200.milliseconds)
         alphaTarget = 0f
-        delay(200)
+        delay(200.milliseconds)
         onSplashFinished()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .graphicsLayer { alpha = animatedAlpha },
     ) {
         // ── Konten utama: logo, teks, titik-titik ──────────────────────
@@ -87,7 +88,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
             Text(
                 text = "Prosodi Down",
-                color = ProsodiPrimary,
+                color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.5.sp,
@@ -95,7 +96,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Deteksi Emosi Anak Down Syndrome",
-                color = ProsodiPrimary.copy(alpha = 0.55f),
+                color = (if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground).copy(alpha = 0.55f),
                 fontSize = 13.sp,
                 fontStyle = FontStyle.Italic,
                 textAlign = TextAlign.Center,
@@ -109,7 +110,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
         // ── Footer ────────────────────────────────────────────────────────
         Text(
             text = "2026 · Universitas Negeri Malang",
-            color = ProsodiPrimary.copy(alpha = 0.30f),
+            color = (if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground).copy(alpha = 0.30f),
             fontSize = 10.sp,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -153,7 +154,7 @@ private fun Dot(alpha: Float, scale: Float = 1f) {
                 scaleY = scale
             }
             .clip(CircleShape)
-            .background(ProsodiPrimary)
+            .background(MaterialTheme.colorScheme.primary)
     )
 }
 

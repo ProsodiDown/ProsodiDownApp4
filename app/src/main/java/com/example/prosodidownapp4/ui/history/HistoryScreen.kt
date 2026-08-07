@@ -35,12 +35,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -113,6 +113,7 @@ fun HistoryScreen(
         )
     ),
     isLoggedIn: Boolean = true,
+    userId: Long = -1L,
     onNavigateToBeranda: () -> Unit = {},
     onNavigateToDeteksi: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
@@ -120,6 +121,10 @@ fun HistoryScreen(
     onNavigateToLogin: () -> Unit = {},
     onMenuClick: () -> Unit = {},
 ) {
+    LaunchedEffect(userId) {
+        viewModel.setUserId(userId)
+    }
+
     val filterType by viewModel.filterType.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val selectedMonth by viewModel.selectedMonth.collectAsState()
@@ -256,7 +261,7 @@ private fun HistoryHeader(onBackClick: () -> Unit, onMenuClick: () -> Unit) {
         Text(
             text = "Statistik deteksi emosi dari waktu ke waktu",
             fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.primary,
+            color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(start = 12.dp)
         )
     }
@@ -324,7 +329,7 @@ private fun FilterDownloadSection(
                         },
                         fontSize = 13.sp,
                         fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        color = if (isActive) (if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
                 }
             }
@@ -367,7 +372,7 @@ private fun FilterDownloadSection(
                         Icon(
                             imageVector = Icons.Filled.CalendarMonth,
                             contentDescription = "Pilih Tanggal",
-                            tint = ProsodiPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp),
                         )
                     }
@@ -416,7 +421,7 @@ private fun FilterDownloadSection(
                 .fillMaxWidth()
                 .height(46.dp),
             shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = ProsodiPrimary),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
         ) {
             Icon(
                 imageVector = Icons.Filled.Download,
@@ -526,7 +531,7 @@ private fun StatCard(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = value,
-            color = MaterialTheme.colorScheme.primary,
+            color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -641,7 +646,7 @@ private fun EmotionDonutChartSection(stats: List<EmotionStat>, total: Int) {
                         text = total.toString(),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                     )
                     Text(
                         text = "total",
@@ -769,7 +774,7 @@ private fun SessionLogItem(log: SessionLog) {
                 text = "#${log.sessionId}",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             )
         }
         Spacer(modifier = Modifier.width(12.dp))
@@ -805,7 +810,7 @@ private fun SessionLogItem(log: SessionLog) {
                                     text = emotion.label,
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = emotion.color,
+                                    color = if (emotion.label == "Sedih") (if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground) else emotion.color,
                                 )
                             }
                         }

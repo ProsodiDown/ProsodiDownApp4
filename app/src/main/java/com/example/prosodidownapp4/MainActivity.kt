@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,7 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val mainViewModel: MainViewModel = viewModel()
             val isDarkModeOverride by mainViewModel.isDarkMode.collectAsState()
-            val darkTheme = isDarkModeOverride ?: isSystemInDarkTheme()
+            val darkTheme = isDarkModeOverride ?: false
 
             ProsodiDownApp4Theme(darkTheme = darkTheme) {
                 ProsodiDownNavGraph(mainViewModel = mainViewModel)

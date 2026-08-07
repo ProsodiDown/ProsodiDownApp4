@@ -54,7 +54,7 @@ import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
 import com.example.prosodidownapp4.ui.theme.ProsodiSecondary
 
 /**
- * AuthTab dijadikan PUBLIC (sebelumnya private) supaya bisa dipakai sebagai
+ * AuthTab PUBLIC supaya bisa dipakai sebagai
  * tipe parameter [LoginScreen. initialTab] dari composable lain (HomeScreen,
  * NavGraph) -- diperlukan untuk fitur "buka langsung tab Daftar" via tombol
  * "Gabung Sekarang"/"Mulai Sekarang" di HomeScreen.
@@ -64,7 +64,7 @@ enum class AuthTab { MASUK, DAFTAR }
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
-    onLoginSuccess: (role: String) -> Unit = {},
+    onLoginSuccess: () -> Unit = {},
     /** Tab yang ditampilkan saat halaman ini pertama dibuka. Default MASUK
      * (perilaku asli) -- kirim AuthTab.DAFTAR dari pemanggil yang ingin
      * langsung menampilkan form pendaftaran (lihat HomeScreen "Gabung Sekarang"). */
@@ -75,8 +75,7 @@ fun LoginScreen(
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
-            val role = (authState as AuthState.Success).user.role
-            onLoginSuccess(role)
+            onLoginSuccess()
         }
     }
 
@@ -216,7 +215,7 @@ private fun MasukForm(viewModel: AuthViewModel) {
             .fillMaxWidth()
             .height(52.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = ProsodiPrimary),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
     ) {
         if (isLoading) {
             CircularProgressIndicator(
@@ -266,12 +265,12 @@ private fun MasukForm(viewModel: AuthViewModel) {
         Icon(
             painter = painterResource(id = android.R.drawable.ic_btn_speak_now),
             contentDescription = null,
-            tint = ProsodiPrimary,
+            tint = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.size(14.dp),
         )
         Text(
             text = "  Alat bantu deteksi emosi anak Down syndrome",
-            color = ProsodiPrimary,
+            color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             fontSize = 11.sp,
             textAlign = TextAlign.Center,
         )
@@ -351,7 +350,7 @@ private fun DaftarForm(viewModel: AuthViewModel) {
             .fillMaxWidth()
             .height(52.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = ProsodiPrimary),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
     ) {
         if (isLoading) {
             CircularProgressIndicator(

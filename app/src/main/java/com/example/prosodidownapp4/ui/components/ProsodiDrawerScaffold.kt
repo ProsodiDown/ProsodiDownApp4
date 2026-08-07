@@ -1,11 +1,11 @@
 package com.example.prosodidownapp4.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +23,7 @@ fun ProsodiDrawerScaffold(
     onLogin: () -> Unit,
     onRegister: () -> Unit,
     onLogout: () -> Unit,
+    onEditProfile: () -> Unit = {},
     content: @Composable (openDrawer: () -> Unit) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -32,7 +33,16 @@ fun ProsodiDrawerScaffold(
     val user = if (authState is AuthState.Success) (authState as AuthState.Success).user else null
 
     val isDarkModeOverride by mainViewModel.isDarkMode.collectAsState()
-    val currentSystemDark = isSystemInDarkTheme()
+    val shouldOpenDrawer by mainViewModel.shouldOpenDrawer.collectAsState()
+
+    LaunchedEffect(shouldOpenDrawer) {
+        if (shouldOpenDrawer) {
+            scope.launch {
+                drawerState.open()
+                mainViewModel.onDrawerOpened()
+            }
+        }
+    }
 
     // Membungkus dengan RTL agar drawer muncul dari kanan
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -43,12 +53,13 @@ fun ProsodiDrawerScaffold(
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     ProsodiDrawer(
                         user = user,
-                        isDarkMode = isDarkModeOverride ?: currentSystemDark,
-                        onToggleTheme = { mainViewModel.toggleDarkMode(currentSystemDark) },
+                        isDarkMode = isDarkModeOverride ?: false,
+                        onToggleTheme = { mainViewModel.toggleDarkMode(false) },
                         onClose = { scope.launch { drawerState.close() } },
                         onLogin = onLogin,
                         onRegister = onRegister,
-                        onLogout = onLogout
+                        onLogout = onLogout,
+                        onEditProfile = onEditProfile
                     )
                 }
             }

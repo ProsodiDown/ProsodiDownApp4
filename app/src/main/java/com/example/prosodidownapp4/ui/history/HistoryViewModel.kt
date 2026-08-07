@@ -10,6 +10,7 @@ import com.example.prosodidownapp4.ui.theme.EmotionMarah
 import com.example.prosodidownapp4.ui.theme.EmotionNetral
 import com.example.prosodidownapp4.ui.theme.EmotionSedih
 import com.example.prosodidownapp4.ui.theme.EmotionSenang
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,18 +32,28 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         repository = SessionRepository(database.sessionDao())
     }
 
+    private val userId = MutableStateFlow(-1L)
+
+    fun setUserId(id: Long) {
+        userId.value = id
+    }
+
     // Filter States
     val filterType = MutableStateFlow(FilterType.HARI)
     val selectedDate = MutableStateFlow(LocalDate.now())
     val selectedMonth = MutableStateFlow(LocalDate.now().monthValue)
     val selectedYear = MutableStateFlow(LocalDate.now().year)
 
-    val availableYears: StateFlow<List<Int>> = repository.availableYears.map { years ->
-        years.mapNotNull { it.toIntOrNull() }.sortedDescending()
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val availableYears: StateFlow<List<Int>> = userId.flatMapLatest { id ->
+        repository.getAvailableYearsByUser(id).map { years ->
+            years.mapNotNull { it.toIntOrNull() }.sortedDescending()
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val filteredEntities = combine(
-        repository.allSessions,
+        userId.flatMapLatest { repository.getSessionsByUser(it) },
         filterType,
         selectedDate,
         selectedMonth,
@@ -62,6 +73,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     }
 
     val sessionLogs: StateFlow<List<SessionLog>> = filteredEntities.map { entities ->
+        // ... (sama seperti sebelumnya)
         entities.map { entity ->
             val emotions = mutableListOf<EmotionDetail>()
             try {
@@ -123,6 +135,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val emotionStats: StateFlow<List<EmotionStat>> = filteredEntities.map { entities ->
+        // ... (sama seperti sebelumnya)
         val allEmotions = mutableListOf<EmotionLabel>()
         entities.forEach { entity ->
             try {
@@ -154,7 +167,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     fun clearHistory() {
         viewModelScope.launch {
-            repository.clearHistory()
+            repository.clearHistoryByUser(userId.value)
         }
     }
 

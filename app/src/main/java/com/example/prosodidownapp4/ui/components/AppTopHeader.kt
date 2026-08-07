@@ -12,17 +12,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
-
 @Composable
 fun AppTopHeader(
+    modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
     onMenuClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
-) {
+    ) {
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,

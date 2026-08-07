@@ -346,7 +346,7 @@ private fun MarqueeSection() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(ProsodiPrimary.copy(alpha = 0.04f))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.04f))
             .padding(vertical = 10.dp),
     ) {
         MarqueeTagRow(
@@ -359,6 +359,7 @@ private fun MarqueeSection() {
                 "TFLite",
             ),
             durationMs = 10000,
+            tagColor = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -425,7 +426,10 @@ private fun StepCard(step: StepItem, modifier: Modifier = Modifier) {
             ) {
                 Text(
                     text = step.number,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                    color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    else
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                 )

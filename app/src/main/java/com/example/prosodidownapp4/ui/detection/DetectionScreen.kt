@@ -78,6 +78,7 @@ fun DetectionScreen(
         )
     ),
     isLoggedIn: Boolean = true,
+    userId: Long = -1L,
     onNavigateToHome: () -> Unit = {},
     onNavigateToRiwayat: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
@@ -128,7 +129,7 @@ fun DetectionScreen(
             Text(
                 text = "Rekam suara anak untuk mendeteksi kondisi emosi",
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(start = 12.dp)
             )
 
@@ -158,6 +159,7 @@ fun DetectionScreen(
             ControlButtons(
                 state = state,
                 viewModel = viewModel,
+                userId = userId,
                 onNavigateToRiwayat = onNavigateToRiwayat,
                 onRekamClick = {
                     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
@@ -228,7 +230,7 @@ private fun SavedBanner() {
 private fun WaveformCard(state: DetectionUiState) {
     val barColor = when (state.status) {
         DetectionStatus.PAUSED -> Color(0xFFFF7A59)
-        DetectionStatus.RECORDING -> ProsodiPrimary
+        DetectionStatus.RECORDING -> MaterialTheme.colorScheme.primary
         else -> Color(0xFFBDBDBD)
     }
 
@@ -321,7 +323,7 @@ private fun StatRow(state: DetectionUiState) {
                 text = formatDuration(state.elapsedSeconds),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             )
         }
         StatCard(modifier = Modifier.weight(1f).fillMaxHeight(), label = "Emosi Saat Ini") {
@@ -330,7 +332,7 @@ private fun StatRow(state: DetectionUiState) {
                 text = state.currentEmotion.displayName,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             )
         }
     }
@@ -375,7 +377,7 @@ private fun AnalysisCountdownCard(secondsUntilNext: Int) {
             text = "${secondsUntilNext}s",
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
+            color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
         )
     }
 }
@@ -384,6 +386,7 @@ private fun AnalysisCountdownCard(secondsUntilNext: Int) {
 private fun ControlButtons(
     state: DetectionUiState,
     viewModel: DetectionViewModel,
+    userId: Long,
     onNavigateToRiwayat: () -> Unit,
     onRekamClick: () -> Unit,
 ) {
@@ -392,7 +395,7 @@ private fun ControlButtons(
             PrimaryActionButton(
                 text = "Rekam",
                 icon = Icons.Filled.Mic,
-                containerColor = ProsodiPrimary,
+                containerColor = MaterialTheme.colorScheme.primary,
                 onClick = onRekamClick,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -414,8 +417,8 @@ private fun ControlButtons(
                     modifier = Modifier.weight(1f),
                     text = "Selesai",
                     icon = Icons.Filled.Stop,
-                    containerColor = ProsodiPrimary,
-                    onClick = viewModel::onSelesaiClicked,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    onClick = { viewModel.onSelesaiClicked(userId) },
                 )
             }
         }
@@ -429,15 +432,15 @@ private fun ControlButtons(
                     modifier = Modifier.weight(1f),
                     text = "Lanjutkan",
                     icon = Icons.Filled.PlayArrow,
-                    containerColor = Color(0xFF4A90E2),
+                    containerColor = MaterialTheme.colorScheme.secondary,
                     onClick = viewModel::onLanjutkanClicked,
                 )
                 PrimaryActionButton(
                     modifier = Modifier.weight(1f),
                     text = "Selesai",
                     icon = Icons.Filled.Stop,
-                    containerColor = ProsodiPrimary,
-                    onClick = viewModel::onSelesaiClicked,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    onClick = { viewModel.onSelesaiClicked(userId) },
                 )
             }
         }
@@ -451,14 +454,14 @@ private fun ControlButtons(
                     modifier = Modifier.weight(1f),
                     text = "Rekam",
                     icon = Icons.Filled.Mic,
-                    containerColor = ProsodiPrimary,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     onClick = onRekamClick,
                 )
                 PrimaryActionButton(
                     modifier = Modifier.weight(1f),
                     text = "Riwayat",
                     icon = Icons.Filled.History,
-                    containerColor = Color(0xFF4A90E2),
+                    containerColor = MaterialTheme.colorScheme.secondary,
                     onClick = onNavigateToRiwayat,
                 )
             }
@@ -498,7 +501,7 @@ private fun LogDeteksiSection(entries: List<DetectionLogEntry>) {
             text = "Log Deteksi",
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
+            color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -541,9 +544,10 @@ private fun LogDeteksiItem(entry: DetectionLogEntry) {
     }
 }
 
+@Composable
 private fun emotionColor(emotion: EmotionLabel): Color = when (emotion) {
     EmotionLabel.SENANG -> Color(0xFF4A90E2)
-    EmotionLabel.SEDIH -> Color(0xFF123458)
+    EmotionLabel.SEDIH -> if (MaterialTheme.colorScheme.primary == ProsodiPrimary) ProsodiPrimary else MaterialTheme.colorScheme.onBackground
     EmotionLabel.MARAH -> Color(0xFFFF7A59)
     EmotionLabel.NETRAL -> Color(0xFF888888)
 }
