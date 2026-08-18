@@ -20,18 +20,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -43,17 +42,17 @@ import androidx.compose.ui.unit.sp
 import com.example.prosodidownapp4.R
 import com.example.prosodidownapp4.ui.theme.ProsodiDownApp4Theme
 import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
-import com.example.prosodidownapp4.ui.theme.ProsodiSecondary
 import kotlinx.coroutines.delay
 import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SplashScreen(onSplashFinished: () -> Unit) {
-    var alphaTarget by remember { mutableStateOf(0f) }
+    var alphaTarget by remember { mutableFloatStateOf(0f) }
     val animatedAlpha by animateFloatAsState(
         targetValue = alphaTarget,
         animationSpec = tween(
-            durationMillis = if (alphaTarget == 1f) 400 else 200, // ← dipercepat
+            durationMillis = if (alphaTarget == 1f) 400 else 200,
             easing = FastOutSlowInEasing,
         ),
         label = "splashAlpha",
@@ -61,70 +60,35 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
     LaunchedEffect(Unit) {
         alphaTarget = 1f
-        delay(1200)    // ← dipercepat dari 2400ms
+        delay(1200.milliseconds)
         alphaTarget = 0f
-        delay(200)     // ← dipercepat dari 400ms
+        delay(200.milliseconds)
         onSplashFinished()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .graphicsLayer { alpha = animatedAlpha },
     ) {
-        // ── Decorative circles (warna dari palet) ────────────────────────
-        Box(
-            modifier = Modifier
-                .size(280.dp)
-                .align(Alignment.TopEnd)
-                .graphicsLayer { translationX = 100f; translationY = -100f }
-                .clip(CircleShape)
-                .background(ProsodiPrimary.copy(alpha = 0.06f)),
-        )
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.BottomStart)
-                .graphicsLayer { translationX = -80f; translationY = 80f }
-                .clip(CircleShape)
-                .background(ProsodiSecondary.copy(alpha = 0.08f)),
-        )
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .align(Alignment.TopStart)
-                .graphicsLayer { translationX = -40f; translationY = 120f }
-                .clip(CircleShape)
-                .background(ProsodiPrimary.copy(alpha = 0.04f)),
-        )
-
-        // ── Konten utama ──────────────────────────────────────────────────
+        // ── Konten utama: logo, teks, titik-titik ──────────────────────
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            // Logo
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(ProsodiPrimary.copy(alpha = 0.06f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo1),
-                    contentDescription = "Logo Prosodi Down",
-                    modifier = Modifier.size(80.dp),
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.logo1),
+                contentDescription = "Logo Prosodi Down",
+                modifier = Modifier.size(96.dp),
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "Prosodi Down",
-                color = ProsodiPrimary,
+                color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.5.sp,
@@ -132,28 +96,11 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Deteksi Emosi Anak Down Syndrome",
-                color = ProsodiPrimary.copy(alpha = 0.55f),
+                color = (if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground).copy(alpha = 0.55f),
                 fontSize = 13.sp,
                 fontStyle = FontStyle.Italic,
                 textAlign = TextAlign.Center,
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Label PKM
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(ProsodiPrimary.copy(alpha = 0.07f))
-                    .padding(horizontal = 14.dp, vertical = 5.dp),
-            ) {
-                Text(
-                    text = "PKM-RSH · Universitas Negeri Malang",
-                    color = ProsodiPrimary.copy(alpha = 0.65f),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
 
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -163,7 +110,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
         // ── Footer ────────────────────────────────────────────────────────
         Text(
             text = "2026 · Universitas Negeri Malang",
-            color = ProsodiPrimary.copy(alpha = 0.30f),
+            color = (if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground).copy(alpha = 0.30f),
             fontSize = 10.sp,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -207,7 +154,7 @@ private fun Dot(alpha: Float, scale: Float = 1f) {
                 scaleY = scale
             }
             .clip(CircleShape)
-            .background(ProsodiPrimary)
+            .background(MaterialTheme.colorScheme.primary)
     )
 }
 

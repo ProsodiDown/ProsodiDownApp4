@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,7 +40,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.prosodidownapp4.ui.theme.ProsodiDownApp4Theme
-import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
 
 // =============================================================================
 // Data class
@@ -61,7 +61,7 @@ fun BottomNavBar(
     activeItemId: String,
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    barColor: Color = ProsodiPrimary,
+    barColor: Color = MaterialTheme.colorScheme.primary,
     barHeight: Dp = 64.dp,
     fabRadius: Dp = 28.dp,
     notchMargin: Dp = 6.dp,

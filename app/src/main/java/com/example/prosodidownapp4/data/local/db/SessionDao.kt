@@ -10,12 +10,12 @@ interface SessionDao {
     @Insert
     suspend fun insertSession(session: SessionEntity)
 
-    @Query("SELECT * FROM sessions ORDER BY timestamp DESC")
-    fun getAllSessions(): Flow<List<SessionEntity>>
+    @Query("SELECT * FROM sessions WHERE userId = :userId ORDER BY timestamp DESC")
+    fun getSessionsByUser(userId: Long): Flow<List<SessionEntity>>
 
-    @Query("SELECT DISTINCT strftime('%Y', datetime(timestamp / 1000, 'unixepoch', 'localtime')) FROM sessions ORDER BY timestamp DESC")
-    fun getAvailableYears(): Flow<List<String>>
+    @Query("SELECT DISTINCT strftime('%Y', datetime(timestamp / 1000, 'unixepoch', 'localtime')) FROM sessions WHERE userId = :userId ORDER BY timestamp DESC")
+    fun getAvailableYearsByUser(userId: Long): Flow<List<String>>
 
-    @Query("DELETE FROM sessions")
-    suspend fun clearAll()
+    @Query("DELETE FROM sessions WHERE userId = :userId")
+    suspend fun clearAllByUser(userId: Long)
 }

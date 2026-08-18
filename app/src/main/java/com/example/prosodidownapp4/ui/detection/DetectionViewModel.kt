@@ -91,7 +91,7 @@ class DetectionViewModel(application: Application) : AndroidViewModel(applicatio
         startAudioLoop()
     }
 
-    fun onSelesaiClicked() {
+    fun onSelesaiClicked(userId: Long) {
         val currentState = _uiState.value
         if (currentState.logEntries.isNotEmpty()) {
             viewModelScope.launch {
@@ -104,6 +104,7 @@ class DetectionViewModel(application: Application) : AndroidViewModel(applicatio
 
                 repository.saveSession(
                     SessionEntity(
+                        userId = userId,
                         timestamp = System.currentTimeMillis(),
                         totalDurationSeconds = currentState.elapsedSeconds,
                         dominantEmotion = dominant.name,

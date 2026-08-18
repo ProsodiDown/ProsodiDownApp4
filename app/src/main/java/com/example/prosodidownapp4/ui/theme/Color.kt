@@ -19,13 +19,20 @@ val ProsodiAccent = Color(0xFFFF7A59)
 val ProsodiBackground = Color(0xFFFAFAFA)
 
 /** Gradient hero (dark navy) */
-val ProsodiDarkNavy = Color(0xFF1E4D82)
 
 /** Latar splash screen (navy gelap) */
-val ProsodiSplashNavy = Color(0xFF07111F)
 
 val ProsodiOnPrimary = Color(0xFFFFFFFF)
 val ProsodiOnBackground = Color(0xFF1A1A1A)
+
+// Dark Mode Colors — Deeper/Balanced Contrast Version
+val ProsodiPrimaryDark = Color(0xFF3A6085) 
+val ProsodiSecondaryDark = Color(0xFF608BC1) // Dibuat sedikit lebih terang agar kontras lebih baik
+val ProsodiAccentDark = Color(0xFFF0907A)
+val ProsodiBackgroundDark = Color(0xFF0E141D)
+val ProsodiOnBackgroundDark = Color(0xFFE2E8F0)
+val ProsodiSurfaceDark = Color(0xFF1B242E)
+val ProsodiOnSurfaceDark = Color(0xFFF1F5F9)
 
 val EmotionSenang = Color(0xFF4A90E2)
 val EmotionSedih  = Color(0xFF123458)

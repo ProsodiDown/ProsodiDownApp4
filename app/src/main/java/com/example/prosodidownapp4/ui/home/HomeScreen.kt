@@ -21,13 +21,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -56,6 +60,7 @@ import com.example.prosodidownapp4.ui.theme.ProsodiAccent
 import com.example.prosodidownapp4.ui.theme.ProsodiDownApp4Theme
 import com.example.prosodidownapp4.ui.theme.ProsodiPrimary
 import com.example.prosodidownapp4.ui.theme.ProsodiSecondary
+
 
 // =============================================================================
 // Data classes
@@ -95,18 +100,19 @@ fun HomeScreen(
     onNavigateToDaftar: () -> Unit = {},
     onLogout: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF4F6FA)),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
         ) {
-            HeroSection(onMulaiRekam = onMulaiRekam)
+            HeroSection(onMulaiRekam = onMulaiRekam, onMenuClick = onMenuClick)
             Spacer(modifier = Modifier.height(28.dp))
             EmosiGridSection()
             Spacer(modifier = Modifier.height(8.dp))
@@ -124,8 +130,11 @@ fun HomeScreen(
                 BottomNavItem(HomeNavMenu.BERANDA,       Icons.Filled.Home,                "Beranda"),
                 BottomNavItem(HomeNavMenu.DETEKSI_EMOSI, Icons.Filled.Mic,                "Deteksi Emosi"),
                 BottomNavItem(HomeNavMenu.RIWAYAT,       Icons.Filled.History,            "Riwayat"),
-                BottomNavItem(HomeNavMenu.AUTH,          Icons.AutoMirrored.Filled.Logout, if (isLoggedIn) "Keluar" else "Masuk"),
-            ),
+                BottomNavItem(
+                    HomeNavMenu.AUTH,
+                    if (isLoggedIn) Icons.AutoMirrored.Filled.Logout else Icons.AutoMirrored.Filled.Login,
+                    if (isLoggedIn) "Keluar" else "Masuk",
+                ),            ),
             activeItemId   = HomeNavMenu.BERANDA,
             onItemSelected = { id ->
                 when (id) {
@@ -144,7 +153,7 @@ fun HomeScreen(
 // =============================================================================
 
 @Composable
-private fun HeroSection(onMulaiRekam: () -> Unit) {
+private fun HeroSection(onMulaiRekam: () -> Unit, onMenuClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -169,6 +178,21 @@ private fun HeroSection(onMulaiRekam: () -> Unit) {
                     )
                 ),
         )
+
+        // Tombol Menu Sidebar (Kanan)
+        IconButton(
+            onClick = onMenuClick,
+            modifier = Modifier
+                .padding(top = 40.dp, end = 12.dp)
+                .align(Alignment.TopEnd)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = "Menu",
+                tint = Color.White
+            )
+        }
+
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -198,7 +222,7 @@ private fun HeroSection(onMulaiRekam: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Teknologi deep learning untuk memahami emosi anak Down Syndrome secara real-time.",
+                text = "Menganalisis emosi anak Down Syndorme menggunakan teknologi berbasis Deep Learning untuk mendukung komunikasi yang lebih baik.",
                 color = Color.White.copy(alpha = 0.80f),
                 fontSize = 13.sp,
                 lineHeight = 20.sp,
@@ -245,14 +269,14 @@ private fun EmosiGridSection() {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = "Emosi yang Dideteksi",
-            color = Color(0xFF1A1A2E),
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "4 kelas emosi yang dikenali sistem",
-            color = Color(0xFF8A94A6),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             fontSize = 12.sp,
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -280,7 +304,7 @@ private fun EmosiCard(item: EmosiItem, modifier: Modifier = Modifier) {
         modifier = modifier
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -297,7 +321,7 @@ private fun EmosiCard(item: EmosiItem, modifier: Modifier = Modifier) {
         Column {
             Text(
                 text = item.label,
-                color = Color(0xFF1A1A2E),
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -322,7 +346,7 @@ private fun MarqueeSection() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(ProsodiPrimary.copy(alpha = 0.04f))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.04f))
             .padding(vertical = 10.dp),
     ) {
         MarqueeTagRow(
@@ -335,6 +359,7 @@ private fun MarqueeSection() {
                 "TFLite",
             ),
             durationMs = 10000,
+            tagColor = if (MaterialTheme.colorScheme.primary == ProsodiPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -355,14 +380,14 @@ private fun StepsSection() {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = "Cara Penggunaan",
-            color = Color(0xFF1A1A2E),
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "4 langkah mudah",
-            color = Color(0xFF8A94A6),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             fontSize = 12.sp,
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -390,7 +415,7 @@ private fun StepCard(step: StepItem, modifier: Modifier = Modifier) {
         modifier = modifier
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(14.dp),
     ) {
         Column {
@@ -401,7 +426,10 @@ private fun StepCard(step: StepItem, modifier: Modifier = Modifier) {
             ) {
                 Text(
                     text = step.number,
-                    color = ProsodiPrimary.copy(alpha = 0.12f),
+                    color = if (MaterialTheme.colorScheme.primary == ProsodiPrimary)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    else
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                 )
@@ -409,13 +437,13 @@ private fun StepCard(step: StepItem, modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(ProsodiPrimary.copy(alpha = 0.08f)),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = step.icon,
                         contentDescription = null,
-                        tint = ProsodiPrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp),
                     )
                 }
@@ -423,7 +451,7 @@ private fun StepCard(step: StepItem, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = step.title,
-                color = Color(0xFF1A1A2E),
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 lineHeight = 17.sp,
@@ -431,7 +459,7 @@ private fun StepCard(step: StepItem, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = step.description,
-                color = Color(0xFF8A94A6),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 fontSize = 10.sp,
                 lineHeight = 14.sp,
             )
